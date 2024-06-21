@@ -1,6 +1,6 @@
 stages:
   - build
-#  - test
+  - test
 #  - docker
 #  - deploy
 #
@@ -20,19 +20,19 @@ build-backend:
   only:
     - main
 
-## Test the Spring Boot backend
-#test-backend:
-#  stage: test
-#  image: maven:3.8.4-jdk-11
-#  script:
-#    - mvn test
-#  artifacts:
-#    when: always
-#    paths:
-#      - target/surefire-reports/
-#  only:
-#    - main
-#
+# Test the Spring Boot backend
+test-backend:
+ stage: test
+ image: maven:3.8.4-openjdk-17
+ script:
+   - mvn test
+ artifacts:
+   when: always
+   paths:
+     - target/surefire-reports/
+ only:
+   - main
+
 ## Build the React frontend
 #build-frontend:
 #  stage: build
