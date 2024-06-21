@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  backend:
+    image: kundalrahul/fitness-tracker:fitness-backend
+    ports:
+      - "8080:8080"
+
+  frontend:
+    image: kundalrahul/fitness-tracker:fitness-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_BACKEND_URL=http://127.0.0.1:8080
+
+  h2_database:
+    image: "postgres:latest"
+    environment:
+      - POSTGRES_DB=testdb
+      - POSTGRES_USER=sa
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
