@@ -33,7 +33,7 @@ test-backend:
  only:
    - main
 
-## Build the React frontend
+# Build the React frontend
 #build-frontend:
 #  stage: build
 #  image: node:14
