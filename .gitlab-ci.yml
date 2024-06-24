@@ -33,7 +33,7 @@ test-backend:
  services:
    - postgres:latest
  script:
-   - mvn test -Dspring.datasource.url=jdbc:postgresql://postgres:5432/$POSTGRES_DB -Dspring.datasource.username=$POSTGRES_USER -Dspring.datasource.password=$POSTGRES_PASSWORD
+   - mvn test -Dspring.datasource.url=$POSTGRES_DB -Dspring.datasource.username=$POSTGRES_USER -Dspring.datasource.password=$POSTGRES_PASSWORD
  artifacts:
    when: always
    paths:
