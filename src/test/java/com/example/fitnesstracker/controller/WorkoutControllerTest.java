@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
-@WebMvcTest(controllers  = WorkoutController.class, excludeAutoConfiguration = {DataSourceAutoConfiguration.class})
+@WebMvcTest(controllers  = WorkoutController.class)
 public class WorkoutControllerTest {
 
     @Autowired
