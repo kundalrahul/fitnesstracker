@@ -2,7 +2,7 @@ stages:
   - build
   - test
   - docker
-#  - deploy
+  - deploy
 
 services:
    - postgres:latest
@@ -14,11 +14,6 @@ variables:
   SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/fitness_tracker
   SPRING_DATASOURCE_USERNAME: postgres
   SPRING_DATASOURCE_PASSWORD: root
-
-
-## Variables for Docker
-#variables:
-#  DOCKER_DRIVER: overlay2
 
 # Build the Spring Boot backend
 build-backend:
@@ -45,46 +40,28 @@ test-backend:
  only:
    - main
 
-##Build the React frontend
-#build-frontend:
-#  stage: build
-#  image: node:14
-#  script:
-#    - cd frontend
-#    - npm install
-#    - npm run build
-#  artifacts:
-#    paths:
-#      - frontend/build
-#  only:
-#    - main
+docker-build:
+  stage: docker
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA -f Dockerfile.backend .
+    - docker push $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA
+  only:
+    - main
 
-## Build Docker images for backend and frontend
-#docker-build:
-#  stage: docker
-#  image: docker:latest
-#  services:
-#    - docker:dind
-#  script:
-#    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-#    - docker build -t $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA -f Dockerfile.backend .
-#    - docker build -t $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA -f Dockerfile.frontend ./frontend
-#    - docker push $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA
-#    - docker push $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA
-#  only:
-#    - main
-#
-## Deploy to Google Kubernetes Engine
-#deploy:
-#  stage: deploy
-#  image: google/cloud-sdk:latest
-#  script:
-#    - echo $GCLOUD_SERVICE_KEY | base64 --decode -i > ${HOME}/gcloud-service-key.json
-#    - gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
-#    - gcloud config set project $GCLOUD_PROJECT_ID
-#    - gcloud config set compute/zone $GCLOUD_ZONE
-#    - gcloud container clusters get-credentials $GCLOUD_CLUSTER
-#    - kubectl set image deployment/backend backend=$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA
-#    - kubectl set image deployment/frontend frontend=$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA
-#  only:
-#    - main
+deploy:
+  stage: deploy
+  image: google/cloud-sdk:latest
+  script:
+    - echo $GCLOUD_SERVICE_KEY | base64 --decode -i > ${HOME}/gcloud-service-key.json
+    - gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
+    - gcloud config set project $GCLOUD_PROJECT_ID
+    - gcloud config set compute/zone $GCLOUD_ZONE
+    - gcloud container clusters get-credentials $GCLOUD_CLUSTER
+    - kubectl apply -f backend-deployment.yaml
+    - kubectl apply -f backend-service.yaml
+  only:
+    - main

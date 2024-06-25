@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fitness-tracker-backend
+  labels:
+    app: fitness-tracker-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fitness-tracker-backend
+  template:
+    metadata:
+      labels:
+        app: fitness-tracker-backend
+    spec:
+      containers:
+        - name: fitness-tracker-backend
+          image: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres:5432/fitness_tracker
+            - name: SPRING_DATASOURCE_USERNAME
+              value: postgres
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: root
