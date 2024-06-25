@@ -1,4 +1,8 @@
 spring:
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/fitness_tracker
+#    username: postgres
+#    password: root
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}

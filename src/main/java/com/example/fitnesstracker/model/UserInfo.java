@@ -2,8 +2,6 @@ package com.example.fitnesstracker.model;
 
 import jakarta.persistence.*;
 
-import java.util.Set;
-
 @Entity
 @Table(name = "user_info")
 public class UserInfo {
