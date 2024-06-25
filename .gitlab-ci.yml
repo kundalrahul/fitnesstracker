@@ -40,7 +40,22 @@ test-backend:
  only:
    - main
 
-docker-build:
+# Build the React frontend
+docker-build-frontend:
+  stage: build
+  image: node:14
+  script:
+    - cd fitness-tracker
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      - fitness-tracker/build
+  only:
+    - main
+
+# Build Docker images for backend and frontend
+docker-build-backend:
   stage: docker
   image: docker:latest
   services:
@@ -48,10 +63,13 @@ docker-build:
   script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - docker build -t $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA -f Dockerfile.backend .
+    - docker build -t $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA -f fitness-tracker/Dockerfile.frontend ./fitness-tracker
     - docker push $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA
+    - docker push $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA
   only:
     - main
 
+# Deploy to Google Kubernetes Engine
 deploy:
   stage: deploy
   image: google/cloud-sdk:latest
@@ -61,7 +79,7 @@ deploy:
     - gcloud config set project $GCLOUD_PROJECT_ID
     - gcloud config set compute/zone $GCLOUD_ZONE
     - gcloud container clusters get-credentials $GCLOUD_CLUSTER
-    - kubectl apply -f backend-deployment.yaml
-    - kubectl apply -f backend-service.yaml
+    - kubectl set image deployment/backend backend=$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA
+    - kubectl set image deployment/frontend frontend=$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA
   only:
     - main
