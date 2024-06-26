@@ -21,8 +21,30 @@ spec:
             - containerPort: 8080
           env:
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:postgresql://postgres:5432/fitness_tracker
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsql-secrets
+                  key: spring.datasource.url
             - name: SPRING_DATASOURCE_USERNAME
-              value: postgres
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsql-secrets
+                  key: spring.datasource.username
             - name: SPRING_DATASOURCE_PASSWORD
-              value: root
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsql-secrets
+                  key: spring.datasource.password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fitness-tracker-backend
+spec:
+  selector:
+    app: fitness-tracker-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer
